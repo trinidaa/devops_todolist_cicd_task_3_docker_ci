@@ -54,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-artifacts
-          path: /src
+          path: ./src
 
   docker-ci:
     name: Docker CI build & push image
@@ -65,7 +65,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: python-artifacts
-          path: /src
+          path: ./src
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
