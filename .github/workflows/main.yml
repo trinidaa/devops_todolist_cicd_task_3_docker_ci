@@ -50,7 +50,7 @@ jobs:
           flake8 . --exit-zero --max-complexity=6
 
       - name: Upload python artifacts
-        if: github.ref_name == 'main' || github.ref_name == 'test-ppr'
+        if: github.ref_name == 'main' || github.ref_name == 'feature/test-ppr'
         uses: actions/upload-artifact@v4
         with:
           name: python-artifacts
@@ -59,10 +59,27 @@ jobs:
   docker-ci:
     name: Docker CI build & push image
     needs: python-ci
-    if: github.ref_name == 'main' || github.ref_name == 'test-ppr'
+    if: github.ref_name == 'main' || github.ref_name == 'feature/test-ppr'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: python-artifacts
           path: .
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./src
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/app:${{ github.sha }}
