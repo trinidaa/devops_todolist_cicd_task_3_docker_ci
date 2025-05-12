@@ -50,7 +50,19 @@ jobs:
           flake8 . --exit-zero --max-complexity=6
 
       - name: Upload python artifacts
+        if: github.ref_name == 'main'
         uses: actions/upload-artifact@v4
+        with:
+          name: python-artifacts
+          path: .
+
+  docker-ci:
+    name: Docker CI build & push image
+    needs: python-ci
+    if: github.ref_name == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
         with:
           name: python-artifacts
           path: .
